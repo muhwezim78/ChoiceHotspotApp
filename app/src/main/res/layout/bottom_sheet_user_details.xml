@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="?android:colorBackground">
+
+    <!-- Handler for drag indication -->
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        app:dividerColor="?attr/colorOutlineVariant"
+        app:dividerInsetStart="0dp"
+        app:dividerInsetEnd="0dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Details"
+                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
+
+            <TextView
+                android:id="@+id/detail_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="User 123"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:textStyle="bold"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/detail_voucher_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VOUCHER"
+                android:visibility="gone"
+                app:chipMinHeight="28dp"
+                android:layout_marginTop="4dp"
+                style="@style/Widget.Material3.Chip.Assist"
+                app:chipBackgroundColor="?attr/colorTertiaryContainer"
+                app:chipStrokeColor="?attr/colorTertiary"/>
+        </LinearLayout>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/detail_status_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Online"
+            style="@style/Widget.Material3.Chip.Assist"/>
+    </LinearLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Details Grid -->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:rowCount="4"
+        android:useDefaultMargins="true">
+
+        <!-- Profile -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/detail_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Standard"
+                style="@style/Widget.Material3.Chip.Suggestion"
+                android:clickable="false"/>
+        </LinearLayout>
+
+        <!-- Pw Type -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password Type"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
+             <TextView
+                 android:id="@+id/detail_password_type"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 tools:text="BLANK"
+                 android:textAppearance="?attr/textAppearanceBodyLarge"
+                 android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <!-- Uptime Limit -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Uptime Limit"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
+            <TextView
+                android:id="@+id/detail_uptime_limit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Unlimited"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Last Seen -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last Seen"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
+            <TextView
+                android:id="@+id/detail_last_seen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Just now"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Server -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Server"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <TextView
+                android:id="@+id/detail_server"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                tools:text="Hotspot-1" />
+        </LinearLayout>
+
+        <!-- IP Address -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IP Address"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <TextView
+                android:id="@+id/detail_ip_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                tools:text="192.168.88.10" />
+        </LinearLayout>
+
+        <!-- MAC Address -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MAC Address"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <TextView
+                android:id="@+id/detail_mac_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                tools:text="00:11:22:33:44:55" />
+        </LinearLayout>
+
+        <!-- Current Usage -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Usage"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/detail_usage_uptime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    tools:text="Up: 2h 30m"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"/>
+                
+                <TextView
+                    android:id="@+id/detail_usage_data"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    tools:text="Data: 500 MB"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Comment -->
+        <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_columnSpan="2"
+             android:orientation="vertical">
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="Comment"
+                 android:textAppearance="?attr/textAppearanceLabelSmall"
+                 android:textColor="?attr/colorOnSurfaceVariant"/>
+             <TextView
+                 android:id="@+id/detail_comment"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 tools:text="No comments"
+                 android:textAppearance="?attr/textAppearanceBodyMedium"
+                 android:layout_marginTop="4dp"
+                 android:background="?attr/colorSurfaceVariant"
+                 android:padding="8dp"/>
+        </LinearLayout>
+
+    </GridLayout>
+
+    <Button
+        android:id="@+id/btn_close"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        android:layout_marginTop="24dp"
+        style="@style/Widget.Material3.Button.TonalButton"/>
+
+</LinearLayout>

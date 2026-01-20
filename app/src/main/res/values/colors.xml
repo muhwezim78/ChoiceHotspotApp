@@ -1,5 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Material3 Light Theme Colors -->
+    <!-- A vibrant teal/cyan based color scheme for a hotspot management app -->
+    
+    <!-- Primary colors -->
+    <color name="md_theme_primary">#006A6A</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#6FF7F6</color>
+    <color name="md_theme_onPrimaryContainer">#002020</color>
+    
+    <!-- Secondary colors -->
+    <color name="md_theme_secondary">#4A6363</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_secondaryContainer">#CCE8E7</color>
+    <color name="md_theme_onSecondaryContainer">#051F1F</color>
+    
+    <!-- Tertiary colors -->
+    <color name="md_theme_tertiary">#4B607C</color>
+    <color name="md_theme_onTertiary">#FFFFFF</color>
+    
+    <!-- Error colors -->
+    <color name="md_theme_error">#BA1A1A</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+    
+    <!-- Background and surface colors -->
+    <color name="md_theme_background">#FAFDFC</color>
+    <color name="md_theme_onBackground">#191C1C</color>
+    <color name="md_theme_surface">#FAFDFC</color>
+    <color name="md_theme_onSurface">#191C1C</color>
+    <color name="md_theme_surfaceVariant">#DAE5E4</color>
+    <color name="md_theme_onSurfaceVariant">#3F4948</color>
+    
+    <!-- Material3 Dark Theme Colors -->
+    <color name="md_theme_dark_primary">#4CDADA</color>
+    <color name="md_theme_dark_onPrimary">#003737</color>
+    <color name="md_theme_dark_primaryContainer">#004F4F</color>
+    <color name="md_theme_dark_onPrimaryContainer">#6FF7F6</color>
+    
+    <color name="md_theme_dark_secondary">#B0CCCB</color>
+    <color name="md_theme_dark_onSecondary">#1B3534</color>
+    <color name="md_theme_dark_secondaryContainer">#324B4B</color>
+    <color name="md_theme_dark_onSecondaryContainer">#CCE8E7</color>
+    
+    <color name="md_theme_dark_tertiary">#B3C8E8</color>
+    <color name="md_theme_dark_onTertiary">#1C314B</color>
+    
+    <color name="md_theme_dark_error">#FFB4AB</color>
+    <color name="md_theme_dark_onError">#690005</color>
+    
+    <color name="md_theme_dark_background">#191C1C</color>
+    <color name="md_theme_dark_onBackground">#E0E3E2</color>
+    <color name="md_theme_dark_surface">#191C1C</color>
+    <color name="md_theme_dark_onSurface">#E0E3E2</color>
+    <color name="md_theme_dark_surfaceVariant">#3F4948</color>
+    <color name="md_theme_dark_onSurfaceVariant">#BEC9C8</color>
+    
+    <!-- Legacy colors for compatibility -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,4 +63,22 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Premium Gradient Colors -->
+    <color name="gradient_blue_start">#2F80ED</color>
+    <color name="gradient_blue_end">#56CCF2</color>
+    <color name="gradient_green_start">#27AE60</color>
+    <color name="gradient_green_end">#11FFBD</color>
+    <color name="gradient_purple_start">#8E2DE2</color>
+    <color name="gradient_purple_end">#4A00E0</color>
+    <color name="gradient_orange_start">#f12711</color>
+    <color name="gradient_orange_end">#f5af19</color>
+    
+    <!-- Glassmorphism Surface -->
+    <color name="glass_white">#4DFFFFFF</color>
+    <color name="glass_black">#4D000000</color>
+
+    <!-- App Specific Aliases -->
+    <color name="colorPrimary">@color/md_theme_primary</color>
+    <color name="colorSecondary">@color/md_theme_secondary</color>
 </resources>

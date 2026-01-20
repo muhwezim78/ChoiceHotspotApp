@@ -1,0 +1,7 @@
+<resources>
+    <string name="shortcut_generate_label">Generate Voucher</string>
+    <string name="shortcut_generate_long_label">Generate New Voucher</string>
+    <string name="shortcut_dashboard_label">Dashboard</string>
+    <string name="shortcut_dashboard_long_label">View Dashboard Stats</string>
+    <string name="shortcut_disabled_message">Please enable the shortcut</string>
+</resources>
