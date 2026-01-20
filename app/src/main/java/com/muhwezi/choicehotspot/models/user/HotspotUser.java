@@ -90,6 +90,8 @@ public class HotspotUser implements Serializable {
         public String comment;
         @SerializedName("limit_uptime")
         public String limitUptime;
+        @SerializedName("disabled")
+        public String disabled;
     }
 
     public HotspotUser() {
@@ -277,5 +279,16 @@ public class HotspotUser implements Serializable {
 
     public void setCurrentUsage(CurrentUsage currentUsage) {
         this.currentUsage = currentUsage;
+    }
+
+    @SerializedName("details")
+    private String details;
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
     }
 }

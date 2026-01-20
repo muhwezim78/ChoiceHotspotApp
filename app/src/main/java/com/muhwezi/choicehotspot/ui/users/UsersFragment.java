@@ -199,6 +199,22 @@ public class UsersFragment extends Fragment {
                     emptyView.setText(getEmptyMessage());
                 } else {
                     showEmpty(false);
+
+                    // Sort by Last Seen Descending
+                    if (data != null && (currentFilter == UserFilter.EXPIRED || currentFilter == UserFilter.ALL)) {
+                        java.util.Collections.sort(data, (u1, u2) -> {
+                            String d1 = u1.getLastSeen();
+                            String d2 = u2.getLastSeen();
+                            if (d1 == null && d2 == null)
+                                return 0;
+                            if (d1 == null)
+                                return 1; // null last
+                            if (d2 == null)
+                                return -1;
+                            return d2.compareTo(d1); // Descending
+                        });
+                    }
+
                     adapter.setUsers(data);
                     updateEmptyViewForSearch();
                 }

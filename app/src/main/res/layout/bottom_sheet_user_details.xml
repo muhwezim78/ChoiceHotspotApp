@@ -277,6 +277,28 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Details -->
+        <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_columnSpan="2"
+             android:orientation="vertical"
+             android:layout_marginBottom="16dp">
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="Details"
+                 android:textAppearance="?attr/textAppearanceLabelSmall"
+                 android:textColor="?attr/colorOnSurfaceVariant"/>
+             <TextView
+                 android:id="@+id/detail_extra_info"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 tools:text="No details"
+                 android:textAppearance="?attr/textAppearanceBodyMedium"
+                 android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
         <!-- Comment -->
         <LinearLayout
              android:layout_width="match_parent"

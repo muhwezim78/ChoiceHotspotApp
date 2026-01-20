@@ -875,8 +875,14 @@ public class ApiRepository {
                 if (response.isSuccessful() && response.body() != null && response.body().getAllUsers() != null) {
                     List<HotspotUser> data = response.body().getAllUsers();
                     cache.set(cacheKey, data, TTL_SHORT);
+
+                    // Create a copy for the background thread to avoid
+                    // ConcurrentModificationException
+                    // as the UI thread might sort/filter the original 'data' list simultaneously.
+                    List<HotspotUser> dataForDb = new ArrayList<>(data);
+
                     // Save to database
-                    new Thread(() -> db.hotspotUserDao().insertAll(data)).start();
+                    new Thread(() -> db.hotspotUserDao().insertAll(dataForDb)).start();
                     callback.onSuccess(data);
                 } else {
                     callback.onError(parseError(response, "Failed to fetch users"), null);
@@ -980,17 +986,57 @@ public class ApiRepository {
     }
 
     public void getUserDetail(String username, ApiCallback<HotspotUser> callback) {
-        apiService.getUserDetail(username).enqueue(new Callback<ApiResponse<HotspotUser>>() {
+        apiService.getUserDetail(username).enqueue(new Callback<HotspotUser>() {
             @Override
-            public void onResponse(@NonNull Call<ApiResponse<HotspotUser>> call,
-                    @NonNull Response<ApiResponse<HotspotUser>> response) {
-                handleResponse(response, callback, "Failed to fetch user details");
+            public void onResponse(@NonNull Call<HotspotUser> call,
+                    @NonNull Response<HotspotUser> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    HotspotUser fetchedUser = response.body();
+
+                    // Save to database with smart merge in background
+                    new Thread(() -> {
+                        // Check if we have existing data to preserve stats
+                        HotspotUser existing = db.hotspotUserDao().get(username);
+                        if (existing != null && existing.isActive()) {
+                            // Preserve uptime if new one is missing/zero
+                            if (fetchedUser.getUptime() == null || fetchedUser.getUptime().equals("0s")
+                                    || fetchedUser.getUptime().isEmpty()) {
+                                if (existing.getUptime() != null && !existing.getUptime().equals("0s")
+                                        && !existing.getUptime().isEmpty()) {
+                                    fetchedUser.setUptime(existing.getUptime());
+                                }
+                            }
+                            // Preserve bytes
+                            if (fetchedUser.getBytesIn() == 0 && existing.getBytesIn() > 0) {
+                                fetchedUser.setBytesIn(existing.getBytesIn());
+                            }
+                            if (fetchedUser.getBytesOut() == 0 && existing.getBytesOut() > 0) {
+                                fetchedUser.setBytesOut(existing.getBytesOut());
+                            }
+
+                            // Preserve isExpired: if we knew they were expired, keep it.
+                            // The details API might just say "isActive=false" without branding it
+                            // "isExpired".
+                            if (existing.isExpired()) {
+                                fetchedUser.setExpired(true);
+                            }
+                        }
+
+                        // Insert the (potentially merged) user
+                        db.hotspotUserDao().insert(fetchedUser);
+                    }).start();
+
+                    callback.onSuccess(fetchedUser);
+                } else {
+                    callback.onError(parseError(response, "Failed to fetch user details"), null);
+                }
             }
 
             @Override
-            public void onFailure(@NonNull Call<ApiResponse<HotspotUser>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<HotspotUser> call, @NonNull Throwable t) {
                 handleError(t, callback, "Failed to fetch user details");
             }
+
         });
     }
 
@@ -1321,6 +1367,7 @@ public class ApiRepository {
         }
 
         apiService.getPricingRates().enqueue(new Callback<PricingRatesResponse>() {
+
             @Override
             public void onResponse(@NonNull Call<PricingRatesResponse> call,
                     @NonNull Response<PricingRatesResponse> response) {
@@ -1342,6 +1389,7 @@ public class ApiRepository {
             public void onFailure(@NonNull Call<PricingRatesResponse> call, @NonNull Throwable t) {
                 handleError(t, callback, "Failed to fetch pricing rates");
             }
+
         });
     }
 

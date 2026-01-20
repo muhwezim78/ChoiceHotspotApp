@@ -132,7 +132,7 @@ public interface ApiService {
         Call<ApiResponse<List<HotspotUser>>> getExpiredUsers();
 
         @GET("/users/{username}")
-        Call<com.muhwezi.choicehotspot.models.ApiResponse<HotspotUser>> getUserDetail(
+        Call<HotspotUser> getUserDetail(
                         @Path("username") String username);
 
         @PUT("/users/{username}/comments")

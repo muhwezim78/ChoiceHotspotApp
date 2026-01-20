@@ -67,9 +67,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         String username = user.getUsername() != null ? user.getUsername().toLowerCase() : "";
         String ip = user.getIpAddress() != null ? user.getIpAddress().toLowerCase() : "";
         String comment = user.getComment() != null ? user.getComment().toLowerCase() : "";
+        String details = user.getDetails() != null ? user.getDetails().toLowerCase() : "";
 
         return username.contains(currentQuery) ||
                 ip.contains(currentQuery) ||
+                details.contains(currentQuery) ||
                 comment.contains(currentQuery);
     }
 

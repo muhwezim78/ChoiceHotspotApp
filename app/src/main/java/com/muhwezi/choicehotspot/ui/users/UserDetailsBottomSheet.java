@@ -67,26 +67,44 @@ public class UserDetailsBottomSheet extends BottomSheetDialogFragment {
 
         if (queryTerm != null && !queryTerm.isEmpty()) {
             com.muhwezi.choicehotspot.api.ApiClient.getInstance().getApiService().getUserDetail(queryTerm)
-                    .enqueue(new retrofit2.Callback<com.muhwezi.choicehotspot.models.ApiResponse<HotspotUser>>() {
+                    .enqueue(new retrofit2.Callback<HotspotUser>() {
                         @Override
                         public void onResponse(
-                                retrofit2.Call<com.muhwezi.choicehotspot.models.ApiResponse<HotspotUser>> call,
-                                retrofit2.Response<com.muhwezi.choicehotspot.models.ApiResponse<HotspotUser>> response) {
-                            if (response.isSuccessful() && response.body() != null
-                                    && response.body().getData() != null) {
-                                HotspotUser detailedUser = response.body().getData();
+                                retrofit2.Call<HotspotUser> call,
+                                retrofit2.Response<HotspotUser> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                HotspotUser detailedUser = response.body();
 
                                 // Merge missing fields from existing user object
-                                if (detailedUser.getServer() == null)
+                                if (detailedUser.getServer() == null || detailedUser.getServer().isEmpty())
                                     detailedUser.setServer(user.getServer());
-                                if (detailedUser.getMacAddress() == null)
+                                if (detailedUser.getMacAddress() == null || detailedUser.getMacAddress().isEmpty())
                                     detailedUser.setMacAddress(user.getMacAddress());
-                                if (detailedUser.getIpAddress() == null)
+                                if (detailedUser.getIpAddress() == null || detailedUser.getIpAddress().isEmpty())
                                     detailedUser.setIpAddress(user.getIpAddress());
                                 if ((detailedUser.getId() == null || detailedUser.getId().isEmpty()
                                         || detailedUser.getId().equals(detailedUser.getUsername()))
                                         && user.getId() != null && !user.getId().isEmpty()) {
                                     detailedUser.setId(user.getId());
+                                }
+
+                                // Smart Merge: Preserve active usage stats if detailed response has them as
+                                // empty/zero
+                                // The /users/{id} endpoint may return 0 usage while /active-users has real data
+                                if (user.isActive()) { // Only if we believe the user is active
+                                    if (detailedUser.getUptime() == null || detailedUser.getUptime().equals("0s")
+                                            || detailedUser.getUptime().isEmpty()) {
+                                        if (user.getUptime() != null && !user.getUptime().equals("0s")
+                                                && !user.getUptime().isEmpty()) {
+                                            detailedUser.setUptime(user.getUptime());
+                                        }
+                                    }
+                                    if (detailedUser.getBytesIn() == 0 && user.getBytesIn() > 0) {
+                                        detailedUser.setBytesIn(user.getBytesIn());
+                                    }
+                                    if (detailedUser.getBytesOut() == 0 && user.getBytesOut() > 0) {
+                                        detailedUser.setBytesOut(user.getBytesOut());
+                                    }
                                 }
 
                                 android.util.Log.d("UserDetails",
@@ -102,7 +120,7 @@ public class UserDetailsBottomSheet extends BottomSheetDialogFragment {
 
                         @Override
                         public void onFailure(
-                                retrofit2.Call<com.muhwezi.choicehotspot.models.ApiResponse<HotspotUser>> call,
+                                retrofit2.Call<HotspotUser> call,
                                 Throwable t) {
                             android.util.Log.e("UserDetails", "Error fetching user details", t);
                         }
@@ -120,6 +138,7 @@ public class UserDetailsBottomSheet extends BottomSheetDialogFragment {
         TextView usageUptimeText = view.findViewById(R.id.detail_usage_uptime);
         TextView usageDataText = view.findViewById(R.id.detail_usage_data);
         TextView commentText = view.findViewById(R.id.detail_comment);
+        TextView detailsText = view.findViewById(R.id.detail_extra_info);
         serverText = view.findViewById(R.id.detail_server);
         TextView ipAddressText = view.findViewById(R.id.detail_ip_address);
         TextView macAddressText = view.findViewById(R.id.detail_mac_address);
@@ -136,7 +155,15 @@ public class UserDetailsBottomSheet extends BottomSheetDialogFragment {
 
         voucherTag.setVisibility(user.isVoucher() ? View.VISIBLE : View.GONE);
 
-        if (user.isExpired()) {
+        boolean isDisabled = false;
+        if (user.getCurrentUsage() != null && "true".equalsIgnoreCase(user.getCurrentUsage().disabled)) {
+            isDisabled = true;
+        }
+
+        if (isDisabled) {
+            statusChip.setText("Disabled");
+            statusChip.setChipBackgroundColorResource(android.R.color.darker_gray);
+        } else if (user.isExpired()) {
             statusChip.setText("Expired");
             statusChip.setChipBackgroundColorResource(android.R.color.holo_red_light);
         } else {
@@ -176,6 +203,14 @@ public class UserDetailsBottomSheet extends BottomSheetDialogFragment {
         if (totalBytes == 0 && user.getDataUsed() > 0)
             totalBytes = user.getDataUsed();
         usageDataText.setText("Data: " + ApiUtils.formatBytes(totalBytes));
+
+        // Details Logic
+        if (user.getDetails() != null && !user.getDetails().isEmpty()) {
+            detailsText.setText(user.getDetails());
+            ((View) detailsText.getParent()).setVisibility(View.VISIBLE);
+        } else {
+            ((View) detailsText.getParent()).setVisibility(View.GONE);
+        }
 
         String comment = user.getComment();
         if (comment != null && !comment.isEmpty()) {
