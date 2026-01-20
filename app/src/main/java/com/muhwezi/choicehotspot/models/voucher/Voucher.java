@@ -5,19 +5,21 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.annotation.NonNull;
 
+import java.io.Serializable;
+
 /**
  * Voucher model.
  */
 @Entity(tableName = "vouchers")
-public class Voucher {
+public class Voucher implements Serializable {
 
-    @PrimaryKey
-    @NonNull
     @SerializedName("id")
     private String id = "";
 
+    @PrimaryKey
+    @NonNull
     @SerializedName("code")
-    private String code;
+    private String code = "";
 
     @SerializedName("profile")
     private String profile;

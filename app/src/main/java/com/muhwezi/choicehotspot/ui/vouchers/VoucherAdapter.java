@@ -30,11 +30,25 @@ import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.widget.PopupMenu;
+import com.muhwezi.choicehotspot.utils.ShareUtils;
+import com.muhwezi.choicehotspot.utils.VoucherImageGenerator;
+import android.graphics.Bitmap;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherViewHolder> {
 
+    public interface OnVoucherSelectionListener {
+        void onSelectionChanged(int count);
+    }
+
     private List<Voucher> vouchers = new ArrayList<>();
+    private final java.util.Set<String> selectedCodes = new java.util.HashSet<>();
+    private boolean selectionMode = false;
     private final Context context;
+    private OnVoucherSelectionListener selectionListener;
 
     public VoucherAdapter(Context context) {
         this.context = context;
@@ -45,9 +59,44 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
         this.vouchers = vouchers;
     }
 
+    public void setSelectionListener(OnVoucherSelectionListener listener) {
+        this.selectionListener = listener;
+    }
+
     public void setVouchers(List<Voucher> vouchers) {
         this.vouchers = vouchers;
         notifyDataSetChanged();
+    }
+
+    public void setSelectionMode(boolean active) {
+        this.selectionMode = active;
+        if (!active)
+            selectedCodes.clear();
+        notifyDataSetChanged();
+    }
+
+    public boolean isSelectionMode() {
+        return selectionMode;
+    }
+
+    public List<String> getSelectedCodes() {
+        return new ArrayList<>(selectedCodes);
+    }
+
+    public void selectAll() {
+        for (Voucher v : vouchers) {
+            selectedCodes.add(v.getCode());
+        }
+        notifyDataSetChanged();
+        if (selectionListener != null)
+            selectionListener.onSelectionChanged(selectedCodes.size());
+    }
+
+    public void clearSelection() {
+        selectedCodes.clear();
+        notifyDataSetChanged();
+        if (selectionListener != null)
+            selectionListener.onSelectionChanged(0);
     }
 
     @NonNull
@@ -71,9 +120,10 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
     class VoucherViewHolder extends RecyclerView.ViewHolder {
         TextView codeText;
         TextView profileText;
-        TextView priceText;
         Chip statusChip;
+        android.widget.CheckBox checkBox;
         ImageButton btnDownload;
+        ImageButton btnShare;
 
         VoucherViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -81,11 +131,36 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
             profileText = itemView.findViewById(R.id.voucher_profile);
             statusChip = itemView.findViewById(R.id.voucher_status);
             btnDownload = itemView.findViewById(R.id.btn_download);
+            btnShare = itemView.findViewById(R.id.btn_share);
+            checkBox = itemView.findViewById(R.id.voucher_checkbox);
         }
 
         void bind(Voucher voucher) {
+            itemView.setOnLongClickListener(v -> {
+                if (!selectionMode) {
+                    setSelectionMode(true);
+                    toggleSelection(voucher);
+                    return true;
+                }
+                return false;
+            });
+
+            itemView.setOnClickListener(v -> {
+                if (selectionMode) {
+                    toggleSelection(voucher);
+                }
+            });
+
+            checkBox.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
+            checkBox.setChecked(selectedCodes.contains(voucher.getCode()));
+            checkBox.setOnClickListener(v -> toggleSelection(voucher));
+
             codeText.setText(voucher.getCode());
             profileText.setText(voucher.getProfile() + " / " + ApiUtils.formatCurrency(voucher.getPrice()));
+
+            // Hide download button in selection mode to avoid clutter
+            btnDownload.setVisibility(selectionMode ? View.GONE : View.VISIBLE);
+            btnShare.setVisibility(selectionMode ? View.GONE : View.VISIBLE);
 
             // Handle status
             String status = "Unused";
@@ -108,6 +183,58 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
             statusChip.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(context, colorRes)));
 
             btnDownload.setOnClickListener(v -> downloadPdf(voucher));
+            btnShare.setOnClickListener(v -> showShareMenu(voucher, btnShare));
+        }
+
+        private void showShareMenu(Voucher voucher, View anchor) {
+            PopupMenu popup = new PopupMenu(context, anchor);
+            popup.getMenu().add("Share as Text");
+            popup.getMenu().add("Share as PDF");
+            popup.getMenu().add("Share as Image");
+
+            popup.setOnMenuItemClickListener(item -> {
+                String title = item.getTitle().toString();
+                if (title.contains("Text")) {
+                    ShareUtils.shareText(context, "Choice Hotspot Voucher",
+                            ShareUtils.getVoucherShareText(voucher.getCode(), voucher.getProfile()));
+                } else if (title.contains("PDF")) {
+                    shareVoucherAsPdf(voucher);
+                } else if (title.contains("Image")) {
+                    shareVoucherAsImage(voucher);
+                }
+                return true;
+            });
+            popup.show();
+        }
+
+        private void shareVoucherAsPdf(Voucher voucher) {
+            Toast.makeText(context, "Preparing PDF...", Toast.LENGTH_SHORT).show();
+            ApiRepository.getInstance().downloadVoucherPdf(voucher.getCode(), new ApiCallback<ResponseBody>() {
+                @Override
+                public void onSuccess(ResponseBody data) {
+                    try {
+                        File cachePath = new File(context.getCacheDir(), "vouchers");
+                        cachePath.mkdirs();
+                        File file = new File(cachePath, "Voucher_" + voucher.getCode() + ".pdf");
+                        FileOutputStream fos = new FileOutputStream(file);
+                        fos.write(data.bytes());
+                        fos.close();
+                        ShareUtils.shareFile(context, file, "application/pdf");
+                    } catch (IOException e) {
+                        Toast.makeText(context, "Failed to prepare PDF", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onError(String message, Throwable error) {
+                    Toast.makeText(context, "Failed to fetch PDF: " + message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        private void shareVoucherAsImage(Voucher voucher) {
+            Bitmap bitmap = VoucherImageGenerator.generateVoucherImage(context, voucher);
+            ShareUtils.shareImage(context, bitmap, "Voucher_" + voucher.getCode());
         }
 
         private void downloadPdf(Voucher voucher) {
@@ -157,6 +284,18 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
                 }
             } catch (Exception e) {
                 Toast.makeText(context, "Save failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private void toggleSelection(Voucher voucher) {
+            if (selectedCodes.contains(voucher.getCode())) {
+                selectedCodes.remove(voucher.getCode());
+            } else {
+                selectedCodes.add(voucher.getCode());
+            }
+            notifyItemChanged(getAdapterPosition());
+            if (selectionListener != null) {
+                selectionListener.onSelectionChanged(selectedCodes.size());
             }
         }
 

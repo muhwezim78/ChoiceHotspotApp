@@ -334,13 +334,25 @@ public class AnalyticsFragment extends Fragment {
 
     private void updateUserDistributionChart(AnalyticsDashboard data) {
         List<com.github.mikephil.charting.data.PieEntry> entries = new ArrayList<>();
+        int total = data.getTotalUsers();
         int vouchers = data.getVouchersCount();
-        int regulars = Math.max(0, data.getTotalUsers() - vouchers);
+
+        // If vouchers_count is 0 but we have active users, maybe it's missing from API
+        if (vouchers == 0 && data.getActiveUsers() > 0) {
+            vouchers = data.getActiveUsers(); // Fallback estimate
+        }
+
+        int regulars = Math.max(0, total - vouchers);
 
         if (vouchers > 0)
-            entries.add(new com.github.mikephil.charting.data.PieEntry(vouchers, "Voucher Users"));
+            entries.add(new com.github.mikephil.charting.data.PieEntry(vouchers, "Vouchers"));
         if (regulars > 0)
-            entries.add(new com.github.mikephil.charting.data.PieEntry(regulars, "Regular Users"));
+            entries.add(new com.github.mikephil.charting.data.PieEntry(regulars, "Regulars"));
+
+        // If still empty, add a placeholder to indicate no data
+        if (entries.isEmpty()) {
+            entries.add(new com.github.mikephil.charting.data.PieEntry(1, "No Users"));
+        }
 
         if (entries.isEmpty())
             return;

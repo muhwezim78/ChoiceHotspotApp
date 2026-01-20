@@ -46,6 +46,22 @@
         android:gravity="end">
 
         <Button
+            android:id="@+id/btn_export_all"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Export All (PDF)" />
+
+        <Button
+            android:id="@+id/btn_share_all"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Share All" />
+
+        <Button
             android:id="@+id/btn_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

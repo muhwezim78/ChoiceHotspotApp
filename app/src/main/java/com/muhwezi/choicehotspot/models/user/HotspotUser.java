@@ -5,11 +5,13 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.annotation.NonNull;
 
+import java.io.Serializable;
+
 /**
  * Hotspot user model.
  */
 @Entity(tableName = "hotspot_users")
-public class HotspotUser {
+public class HotspotUser implements Serializable {
 
     @PrimaryKey
     @NonNull
@@ -77,7 +79,7 @@ public class HotspotUser {
     @SerializedName("current_usage")
     private CurrentUsage currentUsage;
 
-    public static class CurrentUsage {
+    public static class CurrentUsage implements Serializable {
         @SerializedName("uptime")
         public String uptime;
         @SerializedName("bytes_in")

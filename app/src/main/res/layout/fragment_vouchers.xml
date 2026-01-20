@@ -40,4 +40,15 @@
         android:text="Generate"
         app:icon="@android:drawable/ic_input_add" />
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_export"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="16dp"
+        android:text="Export (0)"
+        android:visibility="gone"
+        app:icon="@android:drawable/stat_sys_download"
+        tools:visibility="visible" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

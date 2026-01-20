@@ -13,6 +13,8 @@ import com.google.android.material.chip.Chip;
 import com.muhwezi.choicehotspot.R;
 import com.muhwezi.choicehotspot.models.user.HotspotUser;
 import com.muhwezi.choicehotspot.utils.ApiUtils;
+import com.muhwezi.choicehotspot.utils.ShareUtils;
+import android.widget.ImageButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +64,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         TextView dataUsageText;
         TextView timeLeftText;
         TextView serverText;
+        ImageButton btnShare;
 
         UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -71,6 +74,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             statusChip = itemView.findViewById(R.id.user_status);
             dataUsageText = itemView.findViewById(R.id.user_data_usage);
             timeLeftText = itemView.findViewById(R.id.user_time_left);
+            btnShare = itemView.findViewById(R.id.btn_share_user);
         }
 
         void bind(HotspotUser user, OnUserClickListener listener) {
@@ -115,6 +119,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 timeLeftText.setText("Limit: " + user.getDataLimit());
             } else {
                 timeLeftText.setText("Status: " + (user.isActive() ? "Online" : "Offline"));
+            }
+
+            // Share button for inactive users
+            if (btnShare != null) {
+                btnShare.setVisibility(!user.isActive() ? View.VISIBLE : View.GONE);
+                btnShare.setOnClickListener(v -> {
+                    String password = user.getPassword();
+                    String text = ShareUtils.getUserShareText(user.getUsername(), password);
+                    ShareUtils.shareText(itemView.getContext(), "Hotspot Credentials", text);
+                });
             }
         }
     }

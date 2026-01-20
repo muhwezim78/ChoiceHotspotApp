@@ -651,9 +651,21 @@ public class ApiRepository {
                 cache.clearPattern("vouchers");
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     List<Voucher> data = response.body().getData();
+                    android.util.Log.d("ApiRepository", "Generated " + data.size() + " vouchers");
+                    for (Voucher v : data) {
+                        android.util.Log.d("ApiRepository", "Voucher: ID=" + v.getId() + ", Code=" + v.getCode());
+                    }
                     socketService.emit("voucher_generated", data);
                     // Save to database
-                    new Thread(() -> db.voucherDao().insertAll(data)).start();
+                    new Thread(() -> {
+                        try {
+                            db.voucherDao().insertAll(data);
+                            android.util.Log.d("ApiRepository",
+                                    "Successfully saved " + data.size() + " vouchers to Room");
+                        } catch (Exception e) {
+                            android.util.Log.e("ApiRepository", "Failed to save vouchers to Room", e);
+                        }
+                    }).start();
                     callback.onSuccess(data);
                 } else {
                     callback.onError(parseError(response, "Failed to generate vouchers"), null);
@@ -796,7 +808,7 @@ public class ApiRepository {
 
     public void getBatchVoucherPdf(List<String> voucherCodes, ApiCallback<byte[]> callback) {
         Map<String, List<String>> body = new HashMap<>();
-        body.put("vouchers", voucherCodes);
+        body.put("voucher_codes", voucherCodes);
         apiService.getBatchVoucherPdf(body, "yes").enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -892,6 +904,18 @@ public class ApiRepository {
                     Log.d(TAG, "Parsed " + data.size() + " active users from API");
                     for (HotspotUser u : data) {
                         u.setActive(true);
+                        // CRITICAL: Copy nested current_usage fields to top-level fields for Room
+                        // persistence
+                        // This fixes the issue where comments/uptime for active users were missing
+                        if (u.getCurrentUsage() != null) {
+                            if (u.getComment() == null || u.getComment().isEmpty()) {
+                                u.setComment(u.getCurrentUsage().comment);
+                            }
+                            if (u.getUptime() == null || u.getUptime().isEmpty()) {
+                                u.setUptime(u.getCurrentUsage().uptime);
+                            }
+                        }
+
                         // Ensure ID is set (API returns 'user' field, not 'id')
                         if (u.getId() == null || u.getId().isEmpty()) {
                             if (u.getUsername() != null && !u.getUsername().isEmpty()) {
@@ -905,7 +929,8 @@ public class ApiRepository {
                             }
                         }
                         Log.d(TAG, "User: id=" + u.getId() + ", username=" + u.getUsername() +
-                                ", isActive=" + u.isActive() + ", uptime=" + u.getUptime());
+                                ", isActive=" + u.isActive() + ", uptime=" + u.getUptime() + ", comment="
+                                + u.getComment());
                     }
                     Log.d(TAG, "Refreshed active users: " + data.size() + ", now saving to DB");
                     new Thread(() -> {
@@ -1385,8 +1410,9 @@ public class ApiRepository {
             public void onResponse(@NonNull Call<AnalyticsDashboard> call,
                     @NonNull Response<AnalyticsDashboard> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    cache.set(cacheKey, response.body(), TTL_SHORT);
-                    callback.onSuccess(response.body());
+                    AnalyticsDashboard data = response.body();
+                    cache.set(cacheKey, data, TTL_SHORT);
+                    callback.onSuccess(data);
                 } else if (response.code() == 404) {
                     // Fallback to financial stats if analytics dashboard is not found
                     getFinancialStats(false, new ApiCallback<FinancialStats>() {
