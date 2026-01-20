@@ -25,9 +25,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         void onUserClick(HotspotUser user);
     }
 
-    private List<HotspotUser> users = new ArrayList<>();
+    private List<HotspotUser> allUsers = new ArrayList<>();
+    private List<HotspotUser> filteredUsers = new ArrayList<>();
     private final Context context;
     private final OnUserClickListener listener;
+    private String currentQuery = "";
 
     public UserAdapter(Context context, OnUserClickListener listener) {
         this.context = context;
@@ -35,8 +37,40 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     public void setUsers(List<HotspotUser> users) {
-        this.users = users;
+        this.allUsers = users != null ? users : new ArrayList<>();
+        applyFilter();
+    }
+
+    public void filter(String query) {
+        this.currentQuery = query != null ? query.toLowerCase().trim() : "";
+        applyFilter();
+    }
+
+    private void applyFilter() {
+        filteredUsers.clear();
+        if (currentQuery.isEmpty()) {
+            filteredUsers.addAll(allUsers);
+        } else {
+            for (HotspotUser user : allUsers) {
+                if (matches(user)) {
+                    filteredUsers.add(user);
+                }
+            }
+        }
         notifyDataSetChanged();
+    }
+
+    private boolean matches(HotspotUser user) {
+        if (user == null)
+            return false;
+
+        String username = user.getUsername() != null ? user.getUsername().toLowerCase() : "";
+        String ip = user.getIpAddress() != null ? user.getIpAddress().toLowerCase() : "";
+        String comment = user.getComment() != null ? user.getComment().toLowerCase() : "";
+
+        return username.contains(currentQuery) ||
+                ip.contains(currentQuery) ||
+                comment.contains(currentQuery);
     }
 
     @NonNull
@@ -48,13 +82,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        HotspotUser user = users.get(position);
+        HotspotUser user = filteredUsers.get(position);
         holder.bind(user, listener);
     }
 
     @Override
     public int getItemCount() {
-        return users.size();
+        return filteredUsers.size();
     }
 
     static class UserViewHolder extends RecyclerView.ViewHolder {

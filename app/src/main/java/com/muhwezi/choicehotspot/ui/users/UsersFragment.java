@@ -29,6 +29,7 @@ public class UsersFragment extends Fragment {
     private TextView emptyView;
     private CircularProgressIndicator loadingIndicator;
     private com.google.android.material.tabs.TabLayout tabLayout;
+    private com.google.android.material.textfield.TextInputEditText searchEditText;
     private UserAdapter adapter;
 
     private enum UserFilter {
@@ -58,10 +59,43 @@ public class UsersFragment extends Fragment {
         emptyView = view.findViewById(R.id.empty_view);
         loadingIndicator = view.findViewById(R.id.loading_indicator);
         tabLayout = view.findViewById(R.id.tab_layout);
+        searchEditText = view.findViewById(R.id.search_edit_text);
 
         setupRecyclerView();
+        setupSearch();
         setupTabLayout();
         setupObservers();
+    }
+
+    private void setupSearch() {
+        searchEditText.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filter(s.toString());
+                updateEmptyViewForSearch();
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+    }
+
+    private void updateEmptyViewForSearch() {
+        if (adapter.getItemCount() == 0) {
+            showEmpty(true);
+            if (searchEditText.getText() != null && !searchEditText.getText().toString().isEmpty()) {
+                emptyView.setText("No users match your search");
+            } else {
+                emptyView.setText(getEmptyMessage());
+            }
+        } else {
+            showEmpty(false);
+        }
     }
 
     private void setupObservers() {
@@ -76,6 +110,7 @@ public class UsersFragment extends Fragment {
                 } else {
                     showEmpty(false);
                     adapter.setUsers(users);
+                    updateEmptyViewForSearch();
                     android.util.Log.d("UsersFragment", "Adapter updated with " + users.size() + " users");
                 }
                 showLoading(false);
@@ -165,6 +200,7 @@ public class UsersFragment extends Fragment {
                 } else {
                     showEmpty(false);
                     adapter.setUsers(data);
+                    updateEmptyViewForSearch();
                 }
             }
 
